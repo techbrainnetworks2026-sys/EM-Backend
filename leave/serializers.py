@@ -5,11 +5,12 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
     
     employee_name = serializers.CharField(source='employee.username', read_only=True)
     department = serializers.CharField(source='employee.department', read_only=True)
+    action_by_name = serializers.CharField(source='action_by.username', read_only=True, allow_null=True)
 
     class Meta:
         model = LeaveRequest
-        fields = ['id', 'employee', 'employee_name', 'department', 'leave_type', 'start_date', 'end_date', 'reason', 'status', 'applied_on']
-        read_only_fields = ['employee', 'status', 'applied_on'] 
+        fields = ['id', 'employee', 'employee_name', 'department', 'leave_type', 'start_date', 'end_date', 'reason', 'status', 'applied_on', 'action_by', 'action_by_name', 'action_date']
+        read_only_fields = ['employee', 'status', 'applied_on', 'action_by', 'action_date'] 
         # Employee shouldn't set their own status or choose another employee
 
     def create(self, validated_data):

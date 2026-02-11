@@ -68,6 +68,13 @@ class User(AbstractUser):
         help_text="Employee's contact mobile number."
     )
 
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/',
+        blank=True,
+        null=True,
+        help_text="User's profile picture"
+    )
+
     def save(self, *args, **kwargs):
         if self.role == self.MANAGER:
             self.is_approved = True  # Auto-approve managers

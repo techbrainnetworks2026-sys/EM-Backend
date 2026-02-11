@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-dgdpv$h@veb98f(uyo@ia1*mb@)q)!$%0p@e!m+9xol$n7ei%#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'task',
     'announcement',
     'dashboard',
+    'notifications',
 ]
 
 
@@ -139,6 +140,10 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Media files (User uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -203,3 +208,11 @@ CORS_ALLOW_METHODS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Push Notifications (Web Push)
+# ----------------------------
+
+# Use environment variables or dummy values for development
+VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY', 'development-key-placeholder')
+VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY', 'development-public-placeholder')
+VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', "admin@teammonitoring.local")
