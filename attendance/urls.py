@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CheckInView, CheckOutView, AttendanceHistoryView, TodaysAttendanceView, ManagerTodayAttendanceView
+from .views import CheckInView, CheckOutView, AttendanceHistoryView, TodaysAttendanceView, ManagerTodayAttendanceView, ManagerEmployeeAttendanceHistoryView
 
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path('history/', AttendanceHistoryView.as_view(), name='attendance_history'),
     path('today/', TodaysAttendanceView.as_view(), name='todays_attendance'),
     path('manager/today/', ManagerTodayAttendanceView.as_view(), name='manager_today_attendance'),
+    path('manager/employee/<int:employee_id>/history/', ManagerEmployeeAttendanceHistoryView.as_view(), name='manager_employee_attendance_history'),
 ]

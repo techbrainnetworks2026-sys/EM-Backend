@@ -116,3 +116,17 @@ class ApprovedLeaveListView(generics.ListAPIView):
         return LeaveRequest.objects.filter(
             status='APPROVED'
         ).order_by('-action_date')
+
+class ManagerEmployeeLeaveListView(generics.ListAPIView):
+    """
+    Manager can view all leave requests (any status) for a specific employee.
+    URL: leave/manager/employee/<employee_id>/leaves/
+    """
+    serializer_class = LeaveRequestSerializer
+    permission_classes = [IsManager]
+
+    def get_queryset(self):
+        employee_id = self.kwargs.get('employee_id')
+        return LeaveRequest.objects.filter(
+            employee__id=employee_id
+        ).order_by('-applied_on')

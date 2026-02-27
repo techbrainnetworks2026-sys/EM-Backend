@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ApplyLeaveView, ApprovedLeaveListView, EmployeeLeaveHistoryView, LeaveApprovalListView, ProcessLeaveView, EmployeeLeaveBalanceView
+from .views import ApplyLeaveView, ApprovedLeaveListView, EmployeeLeaveHistoryView, LeaveApprovalListView, ProcessLeaveView, EmployeeLeaveBalanceView, ManagerEmployeeLeaveListView
 
 urlpatterns = [
     
@@ -9,4 +9,5 @@ urlpatterns = [
     path('manager/pending-leaves/', LeaveApprovalListView.as_view(), name='pending_leaves'),
     path('manager/process-leave/<int:pk>/', ProcessLeaveView.as_view(), name='process_leave'),
     path('manager/approved-leaves/', ApprovedLeaveListView.as_view(), name='approved_leaves'),
+    path('manager/employee/<int:employee_id>/leaves/', ManagerEmployeeLeaveListView.as_view(), name='manager_employee_leaves'),
 ]

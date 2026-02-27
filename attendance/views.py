@@ -77,3 +77,15 @@ class ManagerTodayAttendanceView(generics.ListAPIView):
     def get_queryset(self):
         today = timezone.now().date()
         return Attendance.objects.filter(date=today).select_related('employee')
+
+class ManagerEmployeeAttendanceHistoryView(generics.ListAPIView):
+    """
+    Manager can view the full attendance history of a specific employee.
+    URL: attendance/manager/employee/<employee_id>/history/
+    """
+    serializer_class = AttendanceSerializer
+    permission_classes = [IsManager]
+
+    def get_queryset(self):
+        employee_id = self.kwargs.get('employee_id')
+        return Attendance.objects.filter(employee__id=employee_id).order_by('-date')

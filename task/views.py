@@ -1,6 +1,8 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from .models import Task
 from .serializers import TaskSerializer
+from django.utils import timezone
+from datetime import date
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
@@ -31,3 +33,10 @@ class TaskViewSet(viewsets.ModelViewSet):
             serializer.save(assigned_by=user, assigned_to=user)
         else:
             serializer.save(assigned_by=user)
+
+    def perform_update(self, serializer):
+        # If status is being changed to COMPLETED, set end_date to today
+        if serializer.validated_data.get('status') == 'COMPLETED':
+            serializer.save(end_date=date.today())
+        else:
+            serializer.save()
