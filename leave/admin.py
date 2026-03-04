@@ -5,8 +5,8 @@ from .models import LeaveBalance, LeaveRequest
 
 @admin.register(LeaveRequest)
 class LeaveRequestAdmin(admin.ModelAdmin):
-    list_display = ('employee', 'leave_type', 'start_date', 'end_date', 'status', 'applied_on')
-    list_filter = ('status', 'leave_type', 'employee')
+    list_display = ('employee', 'leave_type', 'duration_type', 'total_hours', 'start_date', 'end_date', 'status', 'applied_on')
+    list_filter = ('status', 'leave_type', 'duration_type', 'employee')
     search_fields = ('employee__username', 'reason')
     ordering = ('-applied_on',)
     

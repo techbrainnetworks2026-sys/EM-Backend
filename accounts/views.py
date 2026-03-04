@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from .serializers import UserRegistrationSerializer, UserSerializer, LoginSerializer, UserProfileUpdateSerializer
 from .permissions import IsManager
 from django.shortcuts import get_object_or_404
+from notifications.models import Notification
 
 User = get_user_model()
 
@@ -29,6 +30,10 @@ class CustomAuthToken(ObtainAuthToken):
         user = serializer.validated_data['user']
         
         if not user.is_approved:
+            if user.is_rejected:
+                return Response({
+                    'error': 'Account was rejected by manager.'
+                }, status=status.HTTP_403_FORBIDDEN)
             return Response({
                 'error': 'Account not approved by manager yet.'
             }, status=status.HTTP_403_FORBIDDEN)
@@ -52,7 +57,13 @@ class PendingUsersView(generics.ListAPIView):
     permission_classes = [IsManager]
 
     def get_queryset(self):
-        return User.objects.filter(role=User.EMPLOYEE, is_approved=False)
+        # Return users who are employees and NOT approved.
+        # This includes new requests (is_rejected=False) and previously rejected ones (is_rejected=True).
+        # Put new requests at the top, rejected at the bottom using ordering.
+        return User.objects.filter(
+            role=User.EMPLOYEE, 
+            is_approved=False
+        ).order_by('is_rejected', '-date_joined')
 
 # class ApproveUserView(APIView):
 #     """
@@ -89,10 +100,51 @@ class ApproveUserView(APIView):
             )
 
         user.is_approved = True
-        user.save(update_fields=["is_approved"])
+        user.is_rejected = False # Ensure rejected status is cleared if approving
+        user.save(update_fields=["is_approved", "is_rejected"])
+
+        # Create Notification for the employee
+        Notification.objects.create(
+            user=user,
+            title="🎉 Account Approved",
+            message=f"Your account has been approved by the manager. You can now access all features.",
+            notification_type='account_update'
+        )
 
         return Response(
             {"message": f"{user.username} approved successfully."},
+            status=status.HTTP_200_OK
+        )
+
+class RejectUserView(APIView):
+    """
+    Manager rejects an employee account
+    """
+    permission_classes = [IsManager]
+
+    def post(self, request, pk):
+        user = get_object_or_404(User, pk=pk, role=User.EMPLOYEE)
+
+        if user.is_approved:
+            return Response(
+                {"message": "Cannot reject an already approved user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user.is_approved = False
+        user.is_rejected = True
+        user.save(update_fields=["is_approved", "is_rejected"])
+
+        # Create Notification for the employee
+        Notification.objects.create(
+            user=user,
+            title="⚠️ Account Rejected",
+            message=f"Your account request has been rejected by the manager. Please contact support for more information.",
+            notification_type='account_update'
+        )
+
+        return Response(
+            {"message": f"{user.username} rejected successfully."},
             status=status.HTTP_200_OK
         )
     

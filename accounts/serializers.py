@@ -9,7 +9,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'email', 'role', 'department', 'designation', 'blood_group', 'mobile_number', 'profile_picture', 'profile_picture_url')
+        fields = ('id', 'username', 'password', 'email', 'role', 'department', 'designation', 'blood_group', 'mobile_number', 'profile_picture', 'profile_picture_url', 'date_of_birth')
 
     def get_profile_picture_url(self, obj):
         if obj.profile_picture:
@@ -29,16 +29,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             designation=validated_data.get('designation', ''),
             blood_group=validated_data.get('blood_group', ''),
             mobile_number=validated_data.get('mobile_number', ''),
-            profile_picture=validated_data.get('profile_picture', None)
+            profile_picture=validated_data.get('profile_picture', None),
+            date_of_birth=validated_data.get('date_of_birth', None)
         )
         return user
 
 class UserSerializer(serializers.ModelSerializer):
+
     profile_picture_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'is_approved', 'department', 'designation', 'blood_group', 'mobile_number', 'profile_picture', 'profile_picture_url')
+        fields = ('id', 'username', 'email', 'role', 'is_approved', 'is_rejected', 'department', 'designation', 'blood_group', 'mobile_number', 'profile_picture', 'profile_picture_url', 'date_of_birth')
 
     def get_profile_picture_url(self, obj):
         if obj.profile_picture:
@@ -49,12 +51,13 @@ class UserSerializer(serializers.ModelSerializer):
         return None
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    
     """Serializer for updating user profile including profile picture"""
     profile_picture_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'department', 'designation', 'blood_group', 'mobile_number', 'profile_picture', 'profile_picture_url')
+        fields = ('username', 'email', 'department', 'designation', 'blood_group', 'mobile_number', 'profile_picture', 'profile_picture_url', 'date_of_birth')
 
     def get_profile_picture_url(self, obj):
         if obj.profile_picture:
@@ -83,6 +86,10 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         # Handle profile picture - only update if provided
         if 'profile_picture' in validated_data:
             instance.profile_picture = validated_data['profile_picture']
+        
+        # Handle date of birth - only update if provided
+        if 'date_of_birth' in validated_data:
+            instance.date_of_birth = validated_data['date_of_birth']
         
         instance.save()
         return instance

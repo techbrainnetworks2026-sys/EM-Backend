@@ -17,6 +17,12 @@ class LeaveRequest(models.Model):
         ('REJECTED', 'Rejected'),
     ]
 
+    DURATION_CHOICES = [
+        ('FULL_DAY', 'Full Day'),
+        ('HALF_DAY', 'Half Day'),
+        ('HOURLY', 'Hourly Permission'),
+    ]
+
     employee = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -31,12 +37,38 @@ class LeaveRequest(models.Model):
         help_text="Type of leave being requested."
     )
 
+    duration_type = models.CharField(
+        max_length=20,
+        choices=DURATION_CHOICES,
+        default='FULL_DAY',
+        help_text="Duration of the leave."
+    )
+
     start_date = models.DateField(
         help_text="Start date of the leave."
     )
 
     end_date = models.DateField(
         help_text="End date of the leave."
+    )
+
+    from_time = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Start time (if hourly permission)."
+    )
+
+    to_time = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="End time (if hourly permission)."
+    )
+
+    total_hours = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        default=8.0,
+        help_text="Total hours calculated for this leave."
     )
 
     reason = models.TextField(
@@ -72,7 +104,7 @@ class LeaveRequest(models.Model):
     )
 
     def __str__(self):
-        return f"{self.employee.username} - {self.leave_type} ({self.start_date} to {self.end_date})"
+        return f"{self.employee.username} - {self.leave_type} ({self.duration_type}) ({self.start_date} to {self.end_date})"
 
 
 class LeaveBalance(models.Model):
@@ -84,18 +116,24 @@ class LeaveBalance(models.Model):
         help_text="Employee to whom this leave balance belongs."
     )
 
-    casual_leave = models.IntegerField(
-        default=12,
+    casual_leave = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=12.00,
         help_text="Number of casual leave days available per year."
     )
 
-    sick_leave = models.IntegerField(
-        default=10,
+    sick_leave = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=10.00,
         help_text="Number of sick leave days available per year."
     )
 
-    emergency_leave = models.IntegerField(
-        default=5,
+    emergency_leave = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=5.00,
         help_text="Number of emergency leave days available per year."
     )
 

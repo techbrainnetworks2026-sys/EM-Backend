@@ -65,29 +65,29 @@ class ProcessLeaveView(APIView):
             # Check Balance
             employee = leave_request.employee
             balance, _ = LeaveBalance.objects.get_or_create(employee=employee)
-            days_requested = (leave_request.end_date - leave_request.start_date).days + 1
-            if days_requested <= 0:
-                 return Response({'error': 'Invalid date range'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # total_hours is already calculated by serializer
+            days_to_deduct = leave_request.total_hours / 8
 
             if leave_request.leave_type == 'CASUAL':
-                if balance.casual_leave >= days_requested:
-                    balance.casual_leave -= days_requested
+                if balance.casual_leave >= days_to_deduct:
+                    balance.casual_leave -= days_to_deduct
                     balance.save()
                     leave_request.status = 'APPROVED'
                 else:
                     return Response({'error': 'Insufficient Casual Leave balance'}, status=status.HTTP_400_BAD_REQUEST)
             
             elif leave_request.leave_type == 'SICK':
-                if balance.sick_leave >= days_requested:
-                    balance.sick_leave -= days_requested
+                if balance.sick_leave >= days_to_deduct:
+                    balance.sick_leave -= days_to_deduct
                     balance.save()
                     leave_request.status = 'APPROVED'
                 else:
                     return Response({'error': 'Insufficient Sick Leave balance'}, status=status.HTTP_400_BAD_REQUEST)
                     
             elif leave_request.leave_type == 'EMERGENCY':
-                 if balance.emergency_leave >= days_requested:
-                    balance.emergency_leave -= days_requested
+                 if balance.emergency_leave >= days_to_deduct:
+                    balance.emergency_leave -= days_to_deduct
                     balance.save()
                     leave_request.status = 'APPROVED'
                  else:

@@ -2,7 +2,44 @@ from django.db import models
 from django.conf import settings
 
 
+
+class Notification(models.Model):
+    """
+    Stores individual notifications for users.
+    Tracks if the notification has been read by the user.
+    """
+    NOTIFICATION_TYPES = (
+        ('announcement', 'Announcement'),
+        ('system', 'System'),
+        ('leave', 'Leave Request'),
+        ('task', 'Task Assignment'),
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        help_text="User who received the notification"
+    )
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    notification_type = models.CharField(
+        max_length=50,
+        choices=NOTIFICATION_TYPES,
+        default='system'
+    )
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.title} ({'Read' if self.is_read else 'Unread'})"
+
+
 class PushSubscription(models.Model):
+
     """
     Stores browser push notification subscriptions for users.
     A user can have multiple subscriptions (one per browser/device).

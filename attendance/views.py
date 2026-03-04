@@ -75,7 +75,15 @@ class ManagerTodayAttendanceView(generics.ListAPIView):
     permission_classes = [IsManager]   # Only manager allowed
 
     def get_queryset(self):
-        today = timezone.now().date()
+        date_str = self.request.query_params.get('date')
+        if date_str:
+            try:
+                query_date = timezone.datetime.strptime(date_str, '%Y-%m-%d').date()
+                return Attendance.objects.filter(date=query_date).select_related('employee')
+            except ValueError:
+                pass
+        
+        today = timezone.localtime().date()
         return Attendance.objects.filter(date=today).select_related('employee')
 
 class ManagerEmployeeAttendanceHistoryView(generics.ListAPIView):

@@ -112,18 +112,59 @@ class TestPushNotificationView(APIView):
             )
 
 
+
+from .models import PushSubscription, Notification
+from .serializers import PushSubscriptionSerializer, NotificationSerializer
+
+class NotificationListView(generics.ListAPIView):
+    """
+    Get list of all notifications for authenticated user.
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
+
+
+class MarkNotificationsAsReadView(APIView):
+    """
+    Mark all unread notifications as read for authenticated user.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        """Mark unread notifications as read"""
+        try:
+            Notification.objects.filter(
+                user=request.user, 
+                is_read=False
+            ).update(is_read=True)
+            
+            return Response({
+                'message': 'All notifications marked as read'
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error marking notifications as read: {e}")
+            return Response({
+                'error': 'Failed to mark notifications as read'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class UnreadNotificationCountView(APIView):
     """
     Get count of unread notifications for authenticated user.
-    Counts active announcements as unread notifications.
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         """Return count of unread notifications"""
         try:
-            # Count active announcements (treat as unread notifications)
-            unread_count = Announcement.objects.filter(is_active=True).count()
+            # Count unread notifications for the specific user
+            unread_count = Notification.objects.filter(
+                user=request.user,
+                is_read=False
+            ).count()
             
             return Response({
                 'unread_count': unread_count,
@@ -135,3 +176,4 @@ class UnreadNotificationCountView(APIView):
                 'error': 'Failed to fetch notification count',
                 'unread_count': 0
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

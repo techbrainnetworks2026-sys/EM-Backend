@@ -1,5 +1,7 @@
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
 
 class User(AbstractUser):
 
@@ -39,6 +41,11 @@ class User(AbstractUser):
         help_text="Indicates whether the user account has been approved by an admin."
     )
 
+    is_rejected = models.BooleanField(
+        default=False,
+        help_text="Indicates whether the user account has been rejected by an admin."
+    )
+
     department = models.CharField(
         max_length=50,
         blank=True,
@@ -75,9 +82,19 @@ class User(AbstractUser):
         help_text="User's profile picture"
     )
 
+    date_of_birth = models.DateField(
+        blank=True,
+        null=True,
+        help_text="Employee's date of birth."
+    )
+
     def save(self, *args, **kwargs):
+        # Auto approve managers
         if self.role == self.MANAGER:
-            self.is_approved = True  # Auto-approve managers
-        # Employees remain unapproved until approved by admin
+            self.is_approved = True
 
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.username 
+    

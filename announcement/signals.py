@@ -12,10 +12,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
+from notifications.models import Notification
+
 @receiver(post_save, sender=Announcement)
 def notify_announcement_published(sender, instance, created, **kwargs):
     """
-    Send push notification to all active employees when announcement is created or activated.
+    Send push notification and create Notification objects for all active employees 
+    when announcement is created or activated.
     """
     if created or (instance.is_active and not created):
         try:
@@ -26,7 +30,18 @@ def notify_announcement_published(sender, instance, created, **kwargs):
             )
 
             if employees.exists():
-                # Send to all employees
+                # 1. Create Notification objects for each employee
+                notifications_to_create = [
+                    Notification(
+                        user=employee,
+                        title="📢 Company Announcement",
+                        message=instance.title,
+                        notification_type='announcement'
+                    ) for employee in employees
+                ]
+                Notification.objects.bulk_create(notifications_to_create)
+
+                # 2. Send push notifications to all employees
                 send_push_to_users(
                     users=employees,
                     title="📢 Company Announcement",
@@ -35,7 +50,8 @@ def notify_announcement_published(sender, instance, created, **kwargs):
                     icon="/icons/announcement.png",
                 )
 
-                logger.info(f"Announcement notification sent to {employees.count()} employees")
+                logger.info(f"Announcement notification created and sent to {employees.count()} employees")
 
         except Exception as e:
-            logger.error(f"Error sending announcement notification: {e}")
+            logger.error(f"Error in announcement notification signal: {e}")
+

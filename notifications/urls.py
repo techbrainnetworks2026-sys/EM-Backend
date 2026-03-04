@@ -5,6 +5,8 @@ from .views import (
     GetVAPIDPublicKeyView,
     TestPushNotificationView,
     UnreadNotificationCountView,
+    NotificationListView,
+    MarkNotificationsAsReadView,
 )
 
 urlpatterns = [
@@ -19,6 +21,10 @@ urlpatterns = [
     
     # Get unread notification count
     path('unread-count/', UnreadNotificationCountView.as_view(), name='unread_count'),
+    
+    # Notification list and actions
+    path('list/', NotificationListView.as_view(), name='notification_list'),
+    path('mark-as-read/', MarkNotificationsAsReadView.as_view(), name='mark_as_read'),
     
     # Debug: Test push notification (admin only)
     path('test/', TestPushNotificationView.as_view(), name='test_push'),
