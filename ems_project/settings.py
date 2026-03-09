@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+
     'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -105,11 +106,18 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default':dj_database_url.parse(
-        os.environ.get("DATABASE_URL")
-    )
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "neondb",
+        "USER": "neondb_owner",
+        "PASSWORD": "npg_IZyWCYk29Ohc",
+        "HOST": "ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech",
+        "PORT": "5432",
+        "OPTIONS": {
+            "sslmode": "require"
+        },
+    }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
