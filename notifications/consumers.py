@@ -1,33 +1,42 @@
+
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+
 class NotificationConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
-        self.user = self.scope["user"]
-        
-        if self.user.is_authenticated:
-            self.group_name = f"user_{self.user.id}"
-            
-            # Join room group
-            await self.channel_layer.group_add(
-                self.group_name,
-                self.channel_name
-            )
-            
-            await self.accept()
-        else:
-            # Reject anonymous connections
-            await self.close()
+        self.group_name = "notifications"
+
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+
+        await self.accept()
+
+        print("WebSocket connected")
 
     async def disconnect(self, close_code):
-        if hasattr(self, 'group_name'):
-            # Leave room group
-            await self.channel_layer.group_discard(
-                self.group_name,
-                self.channel_name
-            )
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
 
-    # Receive message from room group
+        print("WebSocket disconnected")
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "send_notification",
+                "message": data.get("message")
+            }
+        )
+
     async def send_notification(self, event):
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps(event["data"]))
+        await self.send(text_data=json.dumps({
+            "message": event["message"]
+        }))
