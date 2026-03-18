@@ -113,15 +113,21 @@ if DATABASE_URL:
     try:
         from urllib.parse import urlparse
         db_host = urlparse(DATABASE_URL).hostname
-        print(f"DEBUG: Connecting to database host: {db_host}")
+        logger.info(f"Connecting to database host: {db_host}")
     except Exception:
         pass
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+import os
+import dj_database_url
+
 DATABASES = {
     "default": dj_database_url.parse(
-        DATABASE_URL or "postgresql://neondb_owner:PASSWORD@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
+        os.getenv(
+            "DATABASE_URL",
+            "postgresql://neondb_owner:npg_IZyWCYk29Ohc@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+        ),
         conn_max_age=600
     )
 }
