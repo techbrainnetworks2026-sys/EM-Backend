@@ -105,24 +105,24 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-import logging
-logger = logging.getLogger(__name__)
-
 # We use 'DB_URL' as a primary check to bypass Render's automatic (and often broken) DATABASE_URL injection
-db_url = os.getenv('DB_URL') or os.getenv('DATABASE_URL')
+db_source = 'DB_URL' if os.getenv('DB_URL') else 'DATABASE_URL'
+db_url_val = os.getenv(db_source)
 
-if db_url:
+if db_url_val:
     try:
         from urllib.parse import urlparse
-        db_host = urlparse(db_url).hostname
-        print(f"DEBUG: Connecting to database host: {db_host}")
+        db_host = urlparse(db_url_val).hostname
+        print(f"DEBUG: Using environment variable {db_source} with host: {db_host}")
     except Exception:
         pass
 
 DATABASES = {
-    "default": dj_database_url.parse(
-        db_url or "postgresql://neondb_owner:npg_IZyWCYk29Ohc@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
-        conn_max_age=600
+    'default': dj_database_url.config(
+        env='DB_URL' if os.getenv('DB_URL') else 'DATABASE_URL',
+        default='postgresql://neondb_owner:npg_IZyWCYk29Ohc@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require',
+        conn_max_age=600,
+        ssl_require=True
     )
 }
 
