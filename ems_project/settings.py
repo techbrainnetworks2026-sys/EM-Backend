@@ -117,7 +117,6 @@ if DATABASE_URL:
     except Exception:
         pass
 
-DATABASE_URL = os.getenv("DATABASE_URL")
 
 import os
 import dj_database_url
