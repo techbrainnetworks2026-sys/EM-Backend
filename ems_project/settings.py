@@ -109,11 +109,16 @@ CHANNEL_LAYERS = {
 db_source = 'DB_URL' if os.getenv('DB_URL') else 'DATABASE_URL'
 db_url_val = os.getenv(db_source)
 
+# Extra debug info for Render
+print(f"DEBUG: Current DATABASE_URL: {os.getenv('DATABASE_URL')[:30]}...")
+print(f"DEBUG: Current DB_URL: {os.getenv('DB_URL')[:30] if os.getenv('DB_URL') else 'None'}")
+print(f"DEBUG: Selected db_source: {db_source}")
+
 if db_url_val:
     try:
         from urllib.parse import urlparse
         db_host = urlparse(db_url_val).hostname
-        print(f"DEBUG: Using environment variable {db_source} with host: {db_host}")
+        print(f"DEBUG: Final host used for connection: {db_host}")
     except Exception:
         pass
 
