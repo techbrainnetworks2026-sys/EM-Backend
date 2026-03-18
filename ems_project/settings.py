@@ -117,11 +117,12 @@ if DATABASE_URL:
     except Exception:
         pass
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://neondb_owner:npg_IZyWCYk29Ohc@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
-        conn_max_age=600,
-        ssl_require=True
+    "default": dj_database_url.parse(
+        DATABASE_URL or "postgresql://neondb_owner:PASSWORD@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
+        conn_max_age=600
     )
 }
 
