@@ -105,6 +105,18 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import logging
+logger = logging.getLogger(__name__)
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    try:
+        from urllib.parse import urlparse
+        db_host = urlparse(DATABASE_URL).hostname
+        print(f"DEBUG: Connecting to database host: {db_host}")
+    except Exception:
+        pass
+
 DATABASES = {
     'default': dj_database_url.config(
         default='postgresql://neondb_owner:npg_IZyWCYk29Ohc@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb',
