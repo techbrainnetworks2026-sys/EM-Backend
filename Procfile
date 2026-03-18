@@ -1,1 +1,1 @@
-web: gunicorn ems_project.wsgi
+web: daphne -b 0.0.0.0 -p $PORT ems_project.asgi:application

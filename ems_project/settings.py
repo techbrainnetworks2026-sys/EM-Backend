@@ -106,17 +106,11 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "neondb",
-        "USER": "neondb_owner",
-        "PASSWORD": "npg_IZyWCYk29Ohc",
-        "HOST": "ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech",
-        "PORT": "5432",
-        "OPTIONS": {
-            "sslmode": "require"
-        },
-    }
+    'default': dj_database_url.config(
+        default='postgresql://neondb_owner:npg_IZyWCYk29Ohc@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb',
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 # Password validation
