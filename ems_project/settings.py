@@ -105,21 +105,27 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-import logging
-logger = logging.getLogger(__name__)
+# We use 'DB_URL' as a primary check to bypass Render's automatic (and often broken) DATABASE_URL injection
+db_source = 'DB_URL' if os.getenv('DB_URL') else 'DATABASE_URL'
+db_url_val = os.getenv(db_source)
 
-DATABASE_URL = os.getenv('DATABASE_URL')
-if DATABASE_URL:
+# Extra debug info for Render
+print(f"DEBUG: Current DATABASE_URL: {os.getenv('DATABASE_URL')[:30]}...")
+print(f"DEBUG: Current DB_URL: {os.getenv('DB_URL')[:30] if os.getenv('DB_URL') else 'None'}")
+print(f"DEBUG: Selected db_source: {db_source}")
+
+if db_url_val:
     try:
         from urllib.parse import urlparse
-        db_host = urlparse(DATABASE_URL).hostname
-        print(f"DEBUG: Connecting to database host: {db_host}")
+        db_host = urlparse(db_url_val).hostname
+        print(f"DEBUG: Final host used for connection: {db_host}")
     except Exception:
         pass
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://neondb_owner:npg_IZyWCYk29Ohc@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb',
+        env='DB_URL' if os.getenv('DB_URL') else 'DATABASE_URL',
+        default='postgresql://neondb_owner:npg_IZyWCYk29Ohc@ep-crimson-cherry-a4vzqgkz-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require',
         conn_max_age=600,
         ssl_require=True
     )
